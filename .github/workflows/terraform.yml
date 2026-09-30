@@ -1,0 +1,50 @@
+name: 'Terraform CI/CD'
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  terraform:
+    name: 'Terraform Validation & Plan'
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v3
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v2
+      with:
+        terraform_version: 1.5.0
+
+    - name: Terraform Format
+      id: fmt
+      run: terraform fmt -recursive
+      continue-on-error: true
+
+    - name: Terraform Init (DEV)
+      working-directory: infra/envs/dev
+      run: terraform init
+
+    - name: Terraform Validate (DEV)
+      working-directory: infra/envs/dev
+      run: terraform validate
+
+    - name: Terraform Plan (DEV)
+      working-directory: infra/envs/dev
+      run: terraform plan -refresh=false
+
+    - name: Terraform Init (PROD)
+      working-directory: infra/envs/prod
+      run: terraform init
+
+    - name: Terraform Validate (PROD)
+      working-directory: infra/envs/prod
+      run: terraform validate
+
+    - name: Terraform Plan (PROD)
+      working-directory: infra/envs/prod
+      run: terraform plan -refresh=false
