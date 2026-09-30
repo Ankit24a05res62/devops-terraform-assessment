@@ -6,17 +6,25 @@ on:
   pull_request:
     branches: [ "main" ]
 
+# Adding dummy AWS credentials so terraform plan doesn't fail
+env:
+  AWS_ACCESS_KEY_ID: "mock_access_key"
+  AWS_SECRET_ACCESS_KEY: "mock_secret_key"
+  AWS_DEFAULT_REGION: "ap-south-1"
+
 jobs:
   terraform:
     name: 'Terraform Validation & Plan'
     runs-on: ubuntu-latest
 
     steps:
+    # Updated to v4 to fix Node.js 20 deprecation and git exit code 128
     - name: Checkout Code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
+    # Updated to v3 for latest Node.js support
     - name: Setup Terraform
-      uses: hashicorp/setup-terraform@v2
+      uses: hashicorp/setup-terraform@v3
       with:
         terraform_version: 1.5.0
 
